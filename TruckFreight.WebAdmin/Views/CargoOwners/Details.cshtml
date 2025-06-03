@@ -1,0 +1,162 @@
+@model TruckFreight.WebAdmin.Models.ViewModels.CargoOwnerDto
+
+@{
+    ViewData["Title"] = "Cargo Owner Details";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">Cargo Owner Details</h1>
+        <div>
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to List
+            </a>
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">
+                <i class="fas fa-edit"></i> Edit
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Personal Information</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-4">Full Name</dt>
+                        <dd class="col-sm-8">@Model.FullName</dd>
+
+                        <dt class="col-sm-4">Phone Number</dt>
+                        <dd class="col-sm-8">@Model.PhoneNumber</dd>
+
+                        <dt class="col-sm-4">Email</dt>
+                        <dd class="col-sm-8">@Model.Email</dd>
+
+                        <dt class="col-sm-4">Type</dt>
+                        <dd class="col-sm-8">
+                            <span class="badge bg-info">@Model.Type</span>
+                        </dd>
+
+                        <dt class="col-sm-4">Status</dt>
+                        <dd class="col-sm-8">
+                            @if (Model.IsVerified)
+                            {
+                                <span class="badge bg-success">Verified</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-warning">Pending</span>
+                            }
+                            @if (Model.IsBlocked)
+                            {
+                                <span class="badge bg-danger">Blocked</span>
+                            }
+                        </dd>
+
+                        <dt class="col-sm-4">Registration Date</dt>
+                        <dd class="col-sm-8">@Model.RegistrationDate.ToString("yyyy-MM-dd HH:mm")</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-6">Total Cargo Requests</dt>
+                        <dd class="col-sm-6">@Model.TotalCargoRequests</dd>
+
+                        <dt class="col-sm-6">Completed Deliveries</dt>
+                        <dd class="col-sm-6">@Model.CompletedDeliveries</dd>
+
+                        <dt class="col-sm-6">Total Spent</dt>
+                        <dd class="col-sm-6">@Model.TotalSpent.ToString("C")</dd>
+
+                        <dt class="col-sm-6">Average Rating</dt>
+                        <dd class="col-sm-6">
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                if (i <= Model.AverageRating)
+                                {
+                                    <i class="fas fa-star text-warning"></i>
+                                }
+                                else
+                                {
+                                    <i class="far fa-star text-warning"></i>
+                                }
+                            }
+                            (@Model.AverageRating.ToString("F1"))
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0">Recent Cargo Requests</h5>
+            <a asp-action="CargoHistory" asp-route-id="@Model.Id" class="btn btn-sm btn-primary">
+                View All History
+            </a>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Title</th>
+                            <th>Status</th>
+                            <th>Pickup Date</th>
+                            <th>Delivery Date</th>
+                            <th>Price</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var cargo in Model.RecentCargoRequests)
+                        {
+                            <tr>
+                                <td>@cargo.Id</td>
+                                <td>@cargo.Title</td>
+                                <td>
+                                    <span class="badge bg-@cargo.StatusColor">@cargo.Status</span>
+                                </td>
+                                <td>@cargo.PickupDate.ToString("yyyy-MM-dd")</td>
+                                <td>@cargo.DeliveryDate?.ToString("yyyy-MM-dd")</td>
+                                <td>@cargo.Price.ToString("C")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        @if (!Model.IsVerified)
+        {
+            <a asp-action="Verify" asp-route-id="@Model.Id" class="btn btn-success">
+                <i class="fas fa-check"></i> Verify Cargo Owner
+            </a>
+        }
+        @if (!Model.IsBlocked)
+        {
+            <a asp-action="Block" asp-route-id="@Model.Id" class="btn btn-danger">
+                <i class="fas fa-ban"></i> Block Cargo Owner
+            </a>
+        }
+        else
+        {
+            <a asp-action="Unblock" asp-route-id="@Model.Id" class="btn btn-warning">
+                <i class="fas fa-unlock"></i> Unblock Cargo Owner
+            </a>
+        }
+    </div>
+</div> 

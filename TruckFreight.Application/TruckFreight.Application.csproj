@@ -1,0 +1,43 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="Common\Behaviors\" />
+    <Folder Include="Common\Mappings\" />
+    <Folder Include="Common\Models\" />
+    <Folder Include="Features\Administration\" />
+    <Folder Include="Features\CargoOwners\" />
+    <Folder Include="Features\CargoRequests\" />
+    <Folder Include="Features\Drivers\" />
+    <Folder Include="Features\Notifications\" />
+    <Folder Include="Features\Payments\" />
+    <Folder Include="Features\Reports\" />
+    <Folder Include="Features\Tracking\" />
+    <Folder Include="Features\Users\" />
+    <Folder Include="Features\Weather\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="14.0.0" />
+    <PackageReference Include="FluentValidation" Version="12.0.0" />
+    <PackageReference Include="MediatR" Version="12.5.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.5" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.5" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.5">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TruckFreight.Domain\TruckFreight.Domain.csproj" />
+    <ProjectReference Include="..\TruckFreight.Infrastructure\TruckFreight.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>

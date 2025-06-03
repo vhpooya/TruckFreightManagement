@@ -1,0 +1,125 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Truck Freight Management</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <link rel="stylesheet" href="https://api.neshan.org/v2/static/css/leaflet.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <div class="wrapper">
+        <!-- Sidebar -->
+        <nav id="sidebar" class="bg-dark text-white">
+            <div class="sidebar-header">
+                <h3>Truck Freight</h3>
+            </div>
+
+            <ul class="list-unstyled components">
+                <li class="@(ViewContext.RouteData.Values["controller"].ToString() == "Dashboard" ? "active" : "")">
+                    <a asp-controller="Dashboard" asp-action="Index">
+                        <i class="fas fa-tachometer-alt"></i>
+                        Dashboard
+                    </a>
+                </li>
+                <li class="@(ViewContext.RouteData.Values["controller"].ToString() == "Cargos" ? "active" : "")">
+                    <a asp-controller="Cargos" asp-action="Index">
+                        <i class="fas fa-truck"></i>
+                        Cargos
+                    </a>
+                </li>
+                <li class="@(ViewContext.RouteData.Values["controller"].ToString() == "Drivers" ? "active" : "")">
+                    <a asp-controller="Drivers" asp-action="Index">
+                        <i class="fas fa-user-tie"></i>
+                        Drivers
+                    </a>
+                </li>
+                <li class="@(ViewContext.RouteData.Values["controller"].ToString() == "CargoOwners" ? "active" : "")">
+                    <a asp-controller="CargoOwners" asp-action="Index">
+                        <i class="fas fa-users"></i>
+                        Cargo Owners
+                    </a>
+                </li>
+                <li class="@(ViewContext.RouteData.Values["controller"].ToString() == "Payments" ? "active" : "")">
+                    <a asp-controller="Payments" asp-action="Index">
+                        <i class="fas fa-money-bill-wave"></i>
+                        Payments
+                    </a>
+                </li>
+                <li class="@(ViewContext.RouteData.Values["controller"].ToString() == "Reports" ? "active" : "")">
+                    <a asp-controller="Reports" asp-action="Index">
+                        <i class="fas fa-chart-bar"></i>
+                        Reports
+                    </a>
+                </li>
+                <li class="@(ViewContext.RouteData.Values["controller"].ToString() == "Settings" ? "active" : "")">
+                    <a asp-controller="Settings" asp-action="Index">
+                        <i class="fas fa-cog"></i>
+                        Settings
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Page Content -->
+        <div id="content">
+            <!-- Top Navbar -->
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <div class="container-fluid">
+                    <button type="button" id="sidebarCollapse" class="btn btn-dark">
+                        <i class="fas fa-bars"></i>
+                    </button>
+
+                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                        <ul class="navbar-nav ms-auto">
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                                    <i class="fas fa-bell"></i>
+                                    <span class="badge bg-danger">3</span>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a class="dropdown-item" href="#">New cargo request</a></li>
+                                    <li><a class="dropdown-item" href="#">Driver verification needed</a></li>
+                                    <li><a class="dropdown-item" href="#">Payment received</a></li>
+                                </ul>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                                    <i class="fas fa-user-circle"></i>
+                                    Admin
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a class="dropdown-item" href="#"><i class="fas fa-user"></i> Profile</a></li>
+                                    <li><a class="dropdown-item" href="#"><i class="fas fa-cog"></i> Settings</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="#"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Main Content -->
+            <main role="main" class="pb-3">
+                @RenderBody()
+            </main>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+
+    <script>
+        $(document).ready(function () {
+            $('#sidebarCollapse').on('click', function () {
+                $('#sidebar').toggleClass('active');
+            });
+        });
+    </script>
+</body>
+</html>

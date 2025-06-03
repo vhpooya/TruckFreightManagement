@@ -1,0 +1,273 @@
+@model TruckFreight.WebAdmin.Models.ViewModels.DashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="container-fluid">
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-primary text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase mb-1">Active Cargos</h6>
+                            <h2 class="mb-0">@Model.TotalActiveCargos</h2>
+                        </div>
+                        <i class="fas fa-truck fa-2x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-success text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase mb-1">Active Drivers</h6>
+                            <h2 class="mb-0">@Model.TotalActiveDrivers</h2>
+                        </div>
+                        <i class="fas fa-user-tie fa-2x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-info text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase mb-1">Cargo Owners</h6>
+                            <h2 class="mb-0">@Model.TotalCargoOwners</h2>
+                        </div>
+                        <i class="fas fa-users fa-2x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase mb-1">Total Revenue</h6>
+                            <h2 class="mb-0">@Model.TotalRevenue.ToString("C")</h2>
+                        </div>
+                        <i class="fas fa-chart-line fa-2x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Map and Active Cargos -->
+    <div class="row mb-4">
+        <div class="col-xl-8">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Live Tracking</h5>
+                </div>
+                <div class="card-body">
+                    <div id="map" style="height: 500px;"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Active Cargos</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Cargo</th>
+                                    <th>Driver</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="activeCargosTable">
+                                <!-- Will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Revenue Chart and Active Drivers -->
+    <div class="row">
+        <div class="col-xl-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Revenue Overview</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="revenueChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Active Drivers</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Driver</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="activeDriversTable">
+                                <!-- Will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://api.neshan.org/v2/static/js/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Initialize map
+        var map = L.map('map').setView([35.6892, 51.3890], 13);
+        L.tileLayer('https://api.neshan.org/v1/static/tile/{z}/{x}/{y}.png?key=YOUR_API_KEY', {
+            attribution: '© <a href="https://www.neshan.org">Neshan</a> contributors'
+        }).addTo(map);
+
+        // Initialize revenue chart
+        var ctx = document.getElementById('revenueChart').getContext('2d');
+        var revenueChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Revenue',
+                    data: [],
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Function to update active cargos
+        function updateActiveCargos() {
+            $.get('/Dashboard/GetActiveCargos', function(data) {
+                var tableBody = $('#activeCargosTable');
+                tableBody.empty();
+                
+                data.forEach(function(cargo) {
+                    tableBody.append(`
+                        <tr>
+                            <td>${cargo.title}</td>
+                            <td>${cargo.driverName}</td>
+                            <td><span class="badge bg-${getStatusColor(cargo.status)}">${cargo.status}</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-primary" onclick="trackCargo('${cargo.id}')">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `);
+                });
+            });
+        }
+
+        // Function to update active drivers
+        function updateActiveDrivers() {
+            $.get('/Dashboard/GetActiveDrivers', function(data) {
+                var tableBody = $('#activeDriversTable');
+                tableBody.empty();
+                
+                data.forEach(function(driver) {
+                    tableBody.append(`
+                        <tr>
+                            <td>${driver.fullName}</td>
+                            <td><span class="badge bg-${getStatusColor(driver.status)}">${driver.status}</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-primary" onclick="trackDriver('${driver.id}')">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `);
+                });
+            });
+        }
+
+        // Function to update revenue chart
+        function updateRevenueChart() {
+            var endDate = new Date();
+            var startDate = new Date();
+            startDate.setDate(startDate.getDate() - 30);
+
+            $.get('/Dashboard/GetRevenueData', {
+                startDate: startDate.toISOString(),
+                endDate: endDate.toISOString()
+            }, function(data) {
+                revenueChart.data.labels = data.map(d => new Date(d.date).toLocaleDateString());
+                revenueChart.data.datasets[0].data = data.map(d => d.revenue);
+                revenueChart.update();
+            });
+        }
+
+        // Function to track cargo
+        function trackCargo(cargoId) {
+            $.get('/Dashboard/GetCargoLocation', { cargoId: cargoId }, function(data) {
+                map.setView([data.latitude, data.longitude], 13);
+                // Add marker or update existing marker
+            });
+        }
+
+        // Function to track driver
+        function trackDriver(driverId) {
+            $.get('/Dashboard/GetDriverLocation', { driverId: driverId }, function(data) {
+                map.setView([data.latitude, data.longitude], 13);
+                // Add marker or update existing marker
+            });
+        }
+
+        // Helper function to get status color
+        function getStatusColor(status) {
+            switch(status.toLowerCase()) {
+                case 'active': return 'success';
+                case 'pending': return 'warning';
+                case 'completed': return 'info';
+                case 'cancelled': return 'danger';
+                default: return 'secondary';
+            }
+        }
+
+        // Update data periodically
+        setInterval(function() {
+            updateActiveCargos();
+            updateActiveDrivers();
+        }, 30000); // Update every 30 seconds
+
+        // Initial data load
+        $(document).ready(function() {
+            updateActiveCargos();
+            updateActiveDrivers();
+            updateRevenueChart();
+        });
+    </script>
+} 
