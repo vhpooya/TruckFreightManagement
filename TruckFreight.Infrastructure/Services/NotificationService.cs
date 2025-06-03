@@ -406,7 +406,7 @@ namespace TruckFreight.Infrastructure.Services
             {
                 // Get recipient's notification preferences
                 var recipient = await _context.Users
-                    .FirstOrDefaultAsync(u => u.Id == notification.RecipientId);
+                    .FirstOrDefaultAsync(u => u.Id == notification.UserId);
 
                 if (recipient == null)
                 {
@@ -491,19 +491,19 @@ namespace TruckFreight.Infrastructure.Services
         public async Task<int> GetUnreadCountAsync(string userId)
         {
             return await _context.Notifications
-                .CountAsync(n => n.RecipientId == userId && !n.ReadAt.HasValue);
+                .CountAsync(n => n.UserId == userId && !n.ReadAt.HasValue);
         }
 
         public async Task<int> GetUnreadCountByTypeAsync(string userId, string type)
         {
             return await _context.Notifications
-                .CountAsync(n => n.RecipientId == userId && n.Type == type && !n.ReadAt.HasValue);
+                .CountAsync(n => n.UserId == userId && n.Type == type && !n.ReadAt.HasValue);
         }
 
         public async Task<int> GetUnreadCountByPriorityAsync(string userId, string priority)
         {
             return await _context.Notifications
-                .CountAsync(n => n.RecipientId == userId && n.Priority == priority && !n.ReadAt.HasValue);
+                .CountAsync(n => n.UserId == userId && n.Priority == priority && !n.ReadAt.HasValue);
         }
 
         private async Task SendPushNotificationAsync(Notification notification, User recipient)
